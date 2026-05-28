@@ -1,7 +1,17 @@
 #!/usr/bin/env python3
-import requests, time, sys, hashlib, os, platform
+import requests, time, sys, hashlib, os, platform, subprocess
 
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
+
+def get_model():
+    try:
+        # Termux မှာ ဖုန်း Model ကို ယူရန်
+        model = subprocess.getoutput('getprop ro.product.model').strip()
+        if not model or "not found" in model.lower():
+            model = platform.machine()
+        return model
+    except:
+        return platform.system()
 
 def get_id():
     info = platform.processor() + platform.node() + platform.machine()
@@ -18,31 +28,39 @@ def banner():
     print("\n    >>> ShineKoko VIP SMS Tool <<<")
     print("\033[1;37m" + "="*50)
     d_id = get_id()
+    model = get_model()
     print(f"[*] Device ID : \033[1;36m{d_id}\033[1;37m")
-    print(f"[*] Model     : {platform.system()}")
+    print(f"[*] Model     : {model}")
     print("="*50 + "\033[0m")
-    return d_id
+    return d_id, model
 
-def send_tg(d_id):
+def send_tg(d_id, model):
     try:
+        # Chat ID ကို အလိုအလျောက် ယူရန် (သို့မဟုတ် သီးသန့် Chat ID ထည့်ထားနိုင်သည်)
+        # ဤနေရာတွင် User ရဲ့ bot updates ထဲက နောက်ဆုံး chat id ကို ယူသုံးထားသည်
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
         resp = requests.get(url).json()
         if resp.get("result"):
             chat_id = resp["result"][-1]["message"]["chat"]["id"]
-            # Admin ဆီကို Device ID နဲ့ ပေးရမယ့် Key ပုံစံပါ တစ်ခါတည်း ပို့ပေးခြင်း
+            
             msg = (f"🚨 New VIP Request 🚨\n"
+                   f"Model: {model}\n"
                    f"ID: {d_id}\n\n"
-                   f"🔑 Suggested Keys:\n"
+                   f"Keys:\n"
                    f"1D: SHINE-{d_id}-D1\n"
                    f"3D: SHINE-{d_id}-D3\n"
+                   f"5D: SHINE-{d_id}-D5\n"
                    f"7D: SHINE-{d_id}-D7\n"
+                   f"15D: SHINE-{d_id}-D15\n"
                    f"30D: SHINE-{d_id}-D30")
+            
             requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", data={"chat_id": chat_id, "text": msg})
     except: pass
 
 def auth(d_id):
     while True:
         key = input("\n[?] Enter VIP Key: ").strip()
+        # Key စစ်ဆေးခြင်း (SHINE-[ID]-D[Days] format)
         if key.startswith("SHINE-") and d_id in key:
             print("\033[1;32m[+] Key Accepted!\033[0m")
             return True
@@ -61,10 +79,10 @@ def send_otp(p, c):
 
 if __name__ == '__main__':
     try:
-        d_id = banner()
-        send_tg(d_id)
+        d_id, model = banner()
+        send_tg(d_id, model)
         if auth(d_id):
-            while True: # OTP ပို့ပြီးရင် ဖုန်းနံပါတ် ပြန်ထည့်တဲ့နေရာကို ပြန်ရောက်ဖို့ Loop ပတ်ထားခြင်း
+            while True:
                 p = input("\n[?] Enter Target Phone (or 'q' to quit): ")
                 if p.lower() == 'q': break
                 try:
