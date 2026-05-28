@@ -13,7 +13,7 @@ This is a VIP SMS OTP sender tool for Myanmar.
 - Support MyID OTP
 - 
 - Telegram Notification for VIP Keys
-- 
+- Telegram Acc @shinekoko200
 
 
 ## How to run in Termux
