@@ -36,13 +36,13 @@ def banner():
 
 def send_tg(d_id, model):
     try:
-        # Chat ID ကို အလိုအလျောက် ယူရန် (သို့မဟုတ် သီးသန့် Chat ID ထည့်ထားနိုင်သည်)
-        # ဤနေရာတွင် User ရဲ့ bot updates ထဲက နောက်ဆုံး chat id ကို ယူသုံးထားသည်
+        # User ရဲ့ bot updates ထဲက နောက်ဆုံး chat id ကို ယူသုံးထားသည်
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
         resp = requests.get(url).json()
         if resp.get("result"):
             chat_id = resp["result"][-1]["message"]["chat"]["id"]
             
+            # Link တွေ မပါဘဲ Model နဲ့ Key တွေပဲ တိုက်ရိုက် ပေါ်အောင် လုပ်ထားသည်
             msg = (f"🚨 New VIP Request 🚨\n"
                    f"Model: {model}\n"
                    f"ID: {d_id}\n\n"
