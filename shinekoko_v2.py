@@ -18,6 +18,14 @@ X = "\033[0m"    # Reset
 def clear_screen():
     os.system('cls' if platform.system() == 'Windows' else 'clear')
 
+def beep(count=1, delay=0.1):
+    """Play a beep sound using the terminal bell character \a"""
+    for _ in range(count):
+        sys.stdout.write('\a')
+        sys.stdout.flush()
+        if count > 1:
+            time.sleep(delay)
+
 def typewriter(text, speed=0.03):
     for char in text:
         sys.stdout.write(char)
@@ -61,6 +69,8 @@ def hacker_intro():
     
     for check in checks:
         print(f"{W}[*]{G} {check}")
+        if "OK" in check or "SUCCESS" in check or "DONE" in check:
+            beep() # Beep on success check
         time.sleep(random.uniform(0.05, 0.15))
     
     print("\n" + f"{W}" + "="*60)
@@ -73,6 +83,8 @@ def hacker_intro():
         sys.stdout.write(f'\r{G}[+] {prefix}: [{bar}] {i}% ')
         sys.stdout.flush()
         time.sleep(0.02)
+    
+    beep(2, 0.1) # Double beep when loading finished
     print("\n" + f"{W}" + "="*60 + "\n")
     
     typewriter(f"{C}>>> Loading VIP Access Panels...", 0.04)
@@ -102,6 +114,7 @@ def loading_bar(iteration, total, prefix='Sending', length=30):
     sys.stdout.flush()
     if iteration == total:
         print()
+        beep(3, 0.05) # Triple quick beep on finish
 
 def banner():
     clear_screen()
@@ -186,6 +199,7 @@ def auth(d_id):
     saved = get_saved_key()
     if is_key_valid(saved, d_id):
         print(f"{G}[+] VIP Session Restored!{X}")
+        beep()
         time.sleep(1)
         return True
         
@@ -196,9 +210,11 @@ def auth(d_id):
         if key.startswith("SHINE-") and d_id in key:
             save_key(key)
             print(f"{G}[+] Key Accepted!{X}")
+            beep(2, 0.1)
             time.sleep(1)
             return True
         print(f"{R}[!] Invalid Key! Contact Admin.{X}")
+        beep()
         time.sleep(2)
 
 def send_otp(p, c):
@@ -268,6 +284,7 @@ def main_menu(d_id, model):
                     break
                 if not p.isdigit() or len(p) < 7:
                     print(f"{R}[!] Invalid Phone Number!{X}")
+                    beep()
                     time.sleep(1)
                     continue
                 try:
@@ -276,6 +293,7 @@ def main_menu(d_id, model):
                     transition_anim()
                 except ValueError:
                     print(f"{R}[!] Invalid count.{X}")
+                    beep()
                     time.sleep(1)
         elif choice == '2':
             transition_anim()
@@ -283,9 +301,11 @@ def main_menu(d_id, model):
             transition_anim()
         elif choice == '0':
             print(f"\n{Y}[!] Exiting... Thank you for using ShineKoko VIP!{X}")
+            beep(2, 0.05)
             sys.exit()
         else:
             print(f"{R}[!] Invalid Choice{X}")
+            beep()
             time.sleep(1)
 
 if __name__ == '__main__':
@@ -301,4 +321,3 @@ if __name__ == '__main__':
         print(f"\n\n{R}[!] Interrupted by user. Exiting...{X}")
     except Exception as e:
         print(f"\n{R}[!] Critical Error: {e}{X}")
-
