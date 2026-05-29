@@ -2,14 +2,15 @@
 import requests, time, sys, hashlib, os, platform, subprocess, json, random
 
 # --- CONFIGURATION ---
-BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
+# Key storage file
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
+# Your Telegram Channel Link
+CHANNEL_LINK = "https://t.me/movierecap1234" 
 
 # Colors
 G = "\033[1;32m" # Green
 R = "\033[1;31m" # Red
 W = "\033[1;37m" # White
-B = "\033[1;34m" # Blue
 Y = "\033[1;33m" # Yellow
 C = "\033[1;36m" # Cyan
 M = "\033[1;35m" # Magenta
@@ -19,7 +20,6 @@ def clear_screen():
     os.system('cls' if platform.system() == 'Windows' else 'clear')
 
 def beep(count=1, delay=0.1):
-    """Play a beep sound using the terminal bell character \a"""
     for _ in range(count):
         sys.stdout.write('\a')
         sys.stdout.flush()
@@ -34,7 +34,6 @@ def typewriter(text, speed=0.03):
     print()
 
 def transition_anim():
-    """Short transition animation between screens"""
     sys.stdout.write(f"\n{G}[*] Redirecting")
     for _ in range(3):
         time.sleep(0.2)
@@ -70,7 +69,7 @@ def hacker_intro():
     for check in checks:
         print(f"{W}[*]{G} {check}")
         if "OK" in check or "SUCCESS" in check or "DONE" in check:
-            beep() # Beep on success check
+            beep()
         time.sleep(random.uniform(0.05, 0.15))
     
     print("\n" + f"{W}" + "="*60)
@@ -84,7 +83,7 @@ def hacker_intro():
         sys.stdout.flush()
         time.sleep(0.02)
     
-    beep(2, 0.1) # Double beep when loading finished
+    beep(2, 0.1)
     print("\n" + f"{W}" + "="*60 + "\n")
     
     typewriter(f"{C}>>> Loading VIP Access Panels...", 0.04)
@@ -114,7 +113,7 @@ def loading_bar(iteration, total, prefix='Sending', length=30):
     sys.stdout.flush()
     if iteration == total:
         print()
-        beep(3, 0.05) # Triple quick beep on finish
+        beep(3, 0.05)
 
 def banner():
     clear_screen()
@@ -134,37 +133,17 @@ def banner():
     saved = get_saved_key()
     if is_key_valid(saved, d_id):
         key = saved["key"]
-        days = int(key.split("-D")[-1])
-        print(f"  {G}•{W} VIP Status: {G}Active ({days} Days){W}")
+        if "-H1" in key:
+            status = "Active (1 Hour)"
+        else:
+            days = key.split("-D")[-1]
+            status = f"Active ({days} Days)"
+        print(f"  {G}•{W} VIP Status: {G}{status}{W}")
     else:
         print(f"  {G}•{W} VIP Status: {R}Inactive{W}")
         
     print(f"{W}╚══════════════════════════════════════════════════╝{X}")
     return d_id, model
-
-def send_tg(d_id, model):
-    try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
-        resp = requests.get(url, timeout=10).json()
-        chat_id = None
-        if resp.get("result"):
-            for update in reversed(resp["result"]):
-                if "message" in update:
-                    chat_id = update["message"]["chat"]["id"]
-                    break
-        if chat_id:
-            msg = (f"🚨 *New VIP Request* 🚨\n\n"
-                   f"📱 *Model:* {model}\n"
-                   f"🆔 *ID:* `{d_id}`\n\n"
-                   f"🔑 *Available Keys:* \n"
-                   f"• 1D: `SHINE-{d_id}-D1`\n"
-                   f"• 3D: `SHINE-{d_id}-D3`\n"
-                   f"• 5D: `SHINE-{d_id}-D5`\n"
-                   f"• 7D: `SHINE-{d_id}-D7`\n"
-                   f"• 15D: `SHINE-{d_id}-D15`\n"
-                   f"• 30D: `SHINE-{d_id}-D30` ")
-            requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", data={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}, timeout=10)
-    except: pass
 
 def save_key(key):
     data = {"key": key, "activated_at": time.time()}
@@ -185,17 +164,21 @@ def is_key_valid(key_data, d_id):
     if not key_data: return False
     key = key_data.get("key", "")
     activated_at = key_data.get("activated_at", 0)
+    
     if not (key.startswith("SHINE-") and d_id in key):
         return False
+        
     try:
-        days_str = key.split("-D")[-1]
-        days = int(days_str)
-        expiry_time = activated_at + (days * 24 * 60 * 60)
+        if "-H1" in key:
+            expiry_time = activated_at + 3600
+        else:
+            days = int(key.split("-D")[-1])
+            expiry_time = activated_at + (days * 24 * 60 * 60)
         return time.time() < expiry_time
     except: pass
     return False
 
-def auth(d_id):
+def auth(d_id, model):
     saved = get_saved_key()
     if is_key_valid(saved, d_id):
         print(f"{G}[+] VIP Session Restored!{X}")
@@ -205,15 +188,21 @@ def auth(d_id):
         
     while True:
         banner()
-        print(f"{Y}[!] Notification sent to Admin. Please wait for your key.{X}")
+        print(f"{Y}[!] Access Required!{X}")
+        print(f"{W}1. Take a screenshot of this screen.{X}")
+        print(f"{W}2. Send the screenshot to our Telegram Channel.{X}")
+        print(f"{W}3. Make sure your Device ID is visible: {C}{d_id}{X}")
+        print(f"{W}4. The Bot will auto-generate your 1-Hour Key.{X}")
+        print(f"\n{G}Channel: {CHANNEL_LINK}{X}")
+        
         key = input(f"\n{W}[?]{G} Enter VIP Key: {W}").strip()
-        if key.startswith("SHINE-") and d_id in key:
+        if is_key_valid({"key": key, "activated_at": time.time()}, d_id):
             save_key(key)
             print(f"{G}[+] Key Accepted!{X}")
             beep(2, 0.1)
             time.sleep(1)
             return True
-        print(f"{R}[!] Invalid Key! Contact Admin.{X}")
+        print(f"{R}[!] Invalid or Expired Key!{X}")
         beep()
         time.sleep(2)
 
@@ -241,19 +230,24 @@ def show_profile(d_id):
     if is_key_valid(saved, d_id):
         key = saved["key"]
         activated_at = saved["activated_at"]
-        days = int(key.split("-D")[-1])
-        expiry_time = activated_at + (days * 24 * 60 * 60)
+        if "-H1" in key:
+            expiry_time = activated_at + 3600
+            bal = "1 Hour"
+        else:
+            days = int(key.split("-D")[-1])
+            expiry_time = activated_at + (days * 24 * 60 * 60)
+            bal = f"{days} Days"
+            
         remaining = expiry_time - time.time()
-        
-        rem_days = int(remaining // (24 * 60 * 60))
-        rem_hours = int((remaining % (24 * 60 * 60)) // 3600)
-        rem_mins = int((remaining % 3600) // 60)
+        rem_h = int(remaining // 3600)
+        rem_m = int((remaining % 3600) // 60)
+        rem_s = int(remaining % 60)
         
         print(f"  ║ {W}• Device ID  : {C}{d_id:<24}{G} ║")
-        print(f"  ║ {W}• VIP Key    : {C}{key:<24}{G} ║")
+        print(f"  ║ {W}• VIP Key    : {C}{key[:20]+'...':<24}{G} ║")
         print(f"  ║ {W}• Status     : {G}{'ACTIVE':<24}{G} ║")
-        print(f"  ║ {W}• Balance    : {Y}{str(rem_days) + ' Days Left':<24}{G} ║")
-        print(f"  ║ {W}• Expires In : {M}{str(rem_days)+'D '+str(rem_hours)+'H '+str(rem_mins)+'M':<24}{G} ║")
+        print(f"  ║ {W}• Balance    : {Y}{bal:<24}{G} ║")
+        print(f"  ║ {W}• Expires In : {M}{str(rem_h)+'H '+str(rem_m)+'M '+str(rem_s)+'S':<24}{G} ║")
     else:
         print(f"  ║ {W}• Device ID  : {C}{d_id:<24}{G} ║")
         print(f"  ║ {R}• [!] No active VIP key found.           {G} ║")
@@ -313,8 +307,7 @@ if __name__ == '__main__':
         hacker_intro()
         d_id = get_id()
         model = get_model()
-        send_tg(d_id, model)
-        if auth(d_id):
+        if auth(d_id, model):
             transition_anim()
             main_menu(d_id, model)
     except KeyboardInterrupt:
