@@ -1,18 +1,76 @@
 #!/usr/bin/env python3
-import requests, time, sys, hashlib, os, platform, subprocess, json
+import requests, time, sys, hashlib, os, platform, subprocess, json, random
 
 # --- CONFIGURATION ---
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
-# User's chat ID can be hardcoded here if getUpdates fails. 
-# For now, I'll keep the dynamic one but make it more robust.
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
 
 def clear_screen():
     os.system('cls' if platform.system() == 'Windows' else 'clear')
 
+def typewriter(text, speed=0.03):
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(speed)
+    print()
+
+def hacker_intro():
+    clear_screen()
+    # Change terminal color to green on black (for some terminals that support it)
+    print("\033[0;32m") 
+    
+    # ASCII Art
+    ascii_art = r"""
+    ███████╗██╗  ██╗██╗███╗   ██╗███████╗██╗  ██╗ ██████╗ ██╗  ██╗ ██████╗ 
+    ██╔════╝██║  ██║██║████╗  ██║██╔════╝██║ ██╔╝██╔═══██╗██║ ██╔╝██╔═══██╗
+    ███████╗███████║██║██╔██╗ ██║█████╗  █████╔╝ ██║   ██║█████╔╝ ██║   ██║
+    ╚════██║██╔══██║██║██║╚██╗██║██╔══╝  ██╔═██╗ ██║   ██║██╔═██╗ ██║   ██║
+    ███████║██║  ██║██║██║ ╚████║███████╗██║  ██╗╚██████╔╝██║  ██╗╚██████╔╝
+    ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ 
+    """
+    print(ascii_art)
+    time.sleep(0.5)
+    
+    # System Check Animation
+    checks = [
+        "INITIALIZING CORE SYSTEMS...",
+        "CHECKING NETWORK PROTOCOLS... [OK]",
+        "ESTABLISHING SECURE CONNECTION... [SUCCESS]",
+        "BYPASSING FIREWALL... [DONE]",
+        "DECRYPTING DATABASE... [OK]",
+        "LOADING VIRTUAL ENVIRONMENT... [SUCCESS]",
+        "HARDWARE ACCELERATION... [ESTABLISHED]",
+        "LOCALIZING TARGET SERVERS... [OK]"
+    ]
+    
+    for check in checks:
+        print(f"[*] {check}")
+        time.sleep(random.uniform(0.05, 0.2))
+    
+    print("\n" + "="*50)
+    
+    # Hacker Loading Bar
+    prefix = "STABILIZING ACCESS"
+    total = 100
+    for i in range(total + 1):
+        percent = i
+        filled_length = int(30 * i // total)
+        bar = '█' * filled_length + '░' * (30 - filled_length)
+        sys.stdout.write(f'\r[+] {prefix}: [{bar}] {percent}% ')
+        sys.stdout.flush()
+        time.sleep(0.03)
+    print("\n" + "="*50 + "\n")
+    
+    # Typewriter messages
+    typewriter(">>> Loading VIP Access Panels...", 0.05)
+    typewriter(">>> Accessing Secure Layer...", 0.05)
+    typewriter(">>> Authentication Required. Please provide your VIP Key.", 0.05)
+    time.sleep(1)
+    print("\033[0m") # Reset color
+
 def get_model():
     try:
-        # Termux မှာ ဖုန်း Model ကို ယူရန်
         model = subprocess.getoutput('getprop ro.product.model').strip()
         if not model or "not found" in model.lower():
             model = platform.machine()
@@ -48,7 +106,6 @@ def banner():
     print(f"[*] Device ID : \033[1;36m{d_id}\033[1;37m")
     print(f"[*] Model     : {model}")
     
-    # Display Profile Summary if key is active
     saved = get_saved_key()
     if is_key_valid(saved, d_id):
         key = saved["key"]
@@ -61,23 +118,15 @@ def banner():
     return d_id, model
 
 def send_tg(d_id, model):
-    """
-    Sends notification to the Telegram bot.
-    It tries to find the chat_id from getUpdates.
-    """
     try:
-        # First, try to get the chat ID from the latest message to the bot
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
         resp = requests.get(url, timeout=10).json()
-        
         chat_id = None
         if resp.get("result"):
-            # Look for the last chat ID that sent a message
             for update in reversed(resp["result"]):
                 if "message" in update:
                     chat_id = update["message"]["chat"]["id"]
                     break
-        
         if chat_id:
             msg = (f"🚨 *New VIP Request* 🚨\n\n"
                    f"📱 *Model:* {model}\n"
@@ -89,21 +138,11 @@ def send_tg(d_id, model):
                    f"• 7D: `SHINE-{d_id}-D7`\n"
                    f"• 15D: `SHINE-{d_id}-D15`\n"
                    f"• 30D: `SHINE-{d_id}-D30` ")
-            
-            requests.post(
-                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", 
-                data={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"},
-                timeout=10
-            )
-    except Exception as e:
-        # We don't want to crash the script if TG fails, but we can log for debugging if needed
-        pass
+            requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", data={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"}, timeout=10)
+    except: pass
 
 def save_key(key):
-    data = {
-        "key": key,
-        "activated_at": time.time()
-    }
+    data = {"key": key, "activated_at": time.time()}
     try:
         with open(KEY_FILE, "w") as f:
             json.dump(data, f)
@@ -127,8 +166,7 @@ def is_key_valid(key_data, d_id):
         days_str = key.split("-D")[-1]
         days = int(days_str)
         expiry_time = activated_at + (days * 24 * 60 * 60)
-        if time.time() < expiry_time:
-            return True
+        return time.time() < expiry_time
     except: pass
     return False
 
@@ -171,18 +209,15 @@ def show_profile(d_id):
     print("  ╔════════════════════════════════════╗")
     print("  ║         USER VIP PROFILE           ║")
     print("  ╚════════════════════════════════════╝\033[0m")
-    
     if is_key_valid(saved, d_id):
         key = saved["key"]
         activated_at = saved["activated_at"]
         days = int(key.split("-D")[-1])
         expiry_time = activated_at + (days * 24 * 60 * 60)
         remaining = expiry_time - time.time()
-        
         rem_days = int(remaining // (24 * 60 * 60))
         rem_hours = int((remaining % (24 * 60 * 60)) // 3600)
         rem_mins = int((remaining % 3600) // 60)
-        
         print(f"  \033[1;37m[•] Device ID  : \033[1;36m{d_id}\033[0m")
         print(f"  \033[1;37m[•] VIP Key    : \033[1;36m{key}\033[0m")
         print(f"  \033[1;37m[•] Status     : \033[1;32mActive\033[0m")
@@ -191,7 +226,6 @@ def show_profile(d_id):
     else:
         print(f"  \033[1;37m[•] Device ID  : \033[1;36m{d_id}\033[0m")
         print(f"  \033[1;31m[!] No active VIP key found.\033[0m")
-    
     print("\033[1;32m  ══════════════════════════════════════\033[0m")
     input("\nPress Enter to return...")
 
@@ -201,9 +235,7 @@ def main_menu(d_id, model):
         print(" [1] SMS Tool (Start Bombing)")
         print(" [2] My Profile (Account Info)")
         print(" [0] Exit")
-        
         choice = input("\n[?] Select Option: ").strip()
-        
         if choice == '1':
             while True:
                 banner()
@@ -230,13 +262,11 @@ def main_menu(d_id, model):
 
 if __name__ == '__main__':
     try:
-        # Initial clear for clean start
-        clear_screen()
+        # Initial Hacker Intro
+        hacker_intro()
+        
         d_id = get_id()
         model = get_model()
-        
-        # SEND NOTIFICATION TO TELEGRAM
-        # This will send the Device ID and Model to the bot owner
         send_tg(d_id, model)
         
         if auth(d_id):
