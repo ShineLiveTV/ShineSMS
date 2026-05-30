@@ -6,7 +6,7 @@ BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
 # Key storage file
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
 # Your Telegram Channel Link
-CHANNEL_LINK = "https://t.me/A_ToolsX" 
+CHANNEL_LINK = "https://t.me/shinekokoPUBGFreeFile" 
 
 # Colors
 G = "\033[1;32m" # Green
