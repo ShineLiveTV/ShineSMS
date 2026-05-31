@@ -16,13 +16,6 @@ C = "\033[1;36m"
 M = "\033[1;35m"
 X = "\033[0m"
 
-# Compact Myanmar Flag
-MYANMAR_FLAG = f"""
-      {Y}██████████████████████
-      {G}█████████{W}★{G}█████████
-      {R}██████████████████████{X}
-"""
-
 def clear_screen():
     os.system('cls' if platform.system() == 'Windows' else 'clear')
 
@@ -31,9 +24,25 @@ def play_sound():
         os.system('termux-vibrate -d 100')
     except: pass
 
+def flag_animation():
+    lines = [
+        f"{W}┌──────────────────────────────────────────┐",
+        f"│{Y}██████████████████████████████████████████{W}│",
+        f"│{Y}██████████████████████████████████████████{W}│",
+        f"│{G}███████████████████{W}★{G}███████████████████{W}│",
+        f"│{G}███████████████████{W}★{G}███████████████████{W}│",
+        f"│{R}██████████████████████████████████████████{W}│",
+        f"│{R}██████████████████████████████████████████{W}│",
+        f"{W}└──────────────────────────────────────────┘"
+    ]
+    for line in lines:
+        sys.stdout.write(line + "\n")
+        sys.stdout.flush()
+        time.sleep(0.1) # Video-like animation speed
+
 def hacker_intro():
     clear_screen()
-    print(MYANMAR_FLAG)
+    flag_animation()
     print(G) 
     ascii_art = r"""
     ███████╗██╗  ██╗██╗███╗   ██╗███████╗██╗  ██╗ ██████╗ 
@@ -90,13 +99,13 @@ def loading_bar(iteration, total, prefix='Sending', length=30):
 
 def banner():
     clear_screen()
+    flag_animation()
     print(f"{G}")
     print(r"  ____  _   _ ___ _   _ _____   _  _____  _  _____  ")
     print(r" / ___|| | | |_ _| \ | | ____| | |/ / _ \| |/ / _ \ ")
     print(r" \___ \| |_| || ||  \| |  _|   | ' / | | | ' / | | |")
     print(r"  ___) |  _  || || |\  | |___  | . \ |_| | . \ |_| |")
     print(r" |____/|_| |_|___|_| \_|_____| |_|\_\___/|_|\_\___/ ")
-    print(MYANMAR_FLAG)
     print(f"          {Y}>>> {W}ShineKoko VIP SMS Tool {Y}<<<{X}")
     print(f"{W}╔══════════════════════════════════════════════════╗")
     d_id = get_id()
