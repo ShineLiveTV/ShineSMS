@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 # --- CONFIGURATION ---
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
+HISTORY_FILE = os.path.join(os.path.expanduser("~"), ".shine_history.json")
 CHANNEL_LINK = "https://t.me/A_ToolsX" 
 
 # Colors
@@ -25,7 +26,7 @@ def play_sound():
     except: pass
 
 def flag_animation():
-    # Roughly 5cm x 3cm proportions in terminal characters
+    # Myanmar Flag ASCII Art
     lines = [
         f"{W}┌──────────────────────────────────────────────────┐",
         f"│{Y}██████████████████████████████████████████████████{W}│",
@@ -39,10 +40,24 @@ def flag_animation():
         f"│{R}██████████████████████████████████████████████████{W}│",
         f"{W}└──────────────────────────────────────────────────┘"
     ]
+    
+    # Character by character animation (like subtitles)
     for line in lines:
-        sys.stdout.write(line + "\n")
-        sys.stdout.flush()
-        time.sleep(0.3) # Slower animation as requested
+        i = 0
+        while i < len(line):
+            # Handle ANSI escape codes so they don't break the animation
+            if line[i] == "\033":
+                end_idx = line.find("m", i)
+                if end_idx != -1:
+                    sys.stdout.write(line[i:end_idx+1])
+                    i = end_idx + 1
+                    continue
+            sys.stdout.write(line[i])
+            sys.stdout.flush()
+            time.sleep(0.005) # Very fast per character
+            i += 1
+        sys.stdout.write("\n")
+        time.sleep(0.05)
 
 def hacker_intro():
     clear_screen()
@@ -193,6 +208,32 @@ def auth(d_id, model):
         print(f"{R}[!] Invalid Key!{X}")
         time.sleep(2)
 
+# --- HISTORY MANAGEMENT ---
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r") as f:
+                return json.load(f)
+        except: return []
+    return []
+
+def save_history(phone):
+    history = load_history()
+    if phone in history:
+        history.remove(phone)
+    history.insert(0, phone)
+    history = history[:10] # Keep last 10
+    try:
+        with open(HISTORY_FILE, "w") as f:
+            json.dump(history, f)
+    except: pass
+
+def clear_history():
+    if os.path.exists(HISTORY_FILE):
+        os.remove(HISTORY_FILE)
+    print(f"\n{G}[+] History Cleared!{X}")
+    time.sleep(1)
+
 # --- SMS API FUNCTIONS ---
 def call_mytel(phone):
     try:
@@ -213,6 +254,7 @@ def call_ooredoo(phone):
 
 def start_bombing(p, c, op):
     print(f"\n{W}[*] Starting SMS Bomber for {C}{p}{W}...")
+    save_history(p)
     for i in range(c):
         try:
             if op == '1': call_mytel(p)
@@ -233,6 +275,7 @@ def main_menu(d_id, model):
         banner()
         print(f"  {W}[1] SMS TOOL (START BOMBING)")
         print(f"  {W}[2] MY PROFILE")
+        print(f"  {W}[3] CLEAR HISTORY")
         print(f"  {R}[0] EXIT")
         choice = input(f"\n{W}[?]{G} Select: {W}").strip()
         if choice == '1':
@@ -245,14 +288,38 @@ def main_menu(d_id, model):
                 print(f"  {R}[b] BACK")
                 op = input(f"\n{W}[?]{G} Select Operator: {W}").strip()
                 if op.lower() == 'b': break
-                p = input(f"\n{W}[?]{G} Target Phone: {C}")
+                
+                # Show History
+                history = load_history()
+                target_phone = ""
+                if history:
+                    print(f"\n{Y}--- Recent History ---{X}")
+                    for idx, h_phone in enumerate(history, 1):
+                        print(f"  {W}[{idx}] {C}{h_phone}{X}")
+                    print(f"{Y}----------------------{X}")
+                    
+                p_input = input(f"\n{W}[?]{G} Target Phone (or index): {C}").strip()
+                
+                if p_input.isdigit() and 1 <= int(p_input) <= len(history):
+                    target_phone = history[int(p_input)-1]
+                    print(f"{G}[+] Using: {target_phone}{X}")
+                else:
+                    target_phone = p_input
+
+                if not target_phone:
+                    print(f"{R}[!] Invalid Phone Number!{X}")
+                    time.sleep(1)
+                    continue
+
                 try:
                     c = int(input(f"{W}[?]{G} Count: {W}"))
-                    start_bombing(p, c, op)
+                    start_bombing(target_phone, c, op)
                 except: pass
         elif choice == '2':
             banner()
             input(f"\n{W}Press Enter to return...{X}")
+        elif choice == '3':
+            clear_history()
         elif choice == '0': sys.exit()
 
 if __name__ == '__main__':
@@ -260,3 +327,4 @@ if __name__ == '__main__':
     d_id, model = banner()
     if auth(d_id, model):
         main_menu(d_id, model)
+
