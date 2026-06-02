@@ -5,7 +5,6 @@ from concurrent.futures import ThreadPoolExecutor
 # --- CONFIGURATION ---
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
-HISTORY_FILE = os.path.join(os.path.expanduser("~"), ".shine_history.json")
 CHANNEL_LINK = "https://t.me/A_ToolsX" 
 
 # Colors
@@ -26,38 +25,63 @@ def play_sound():
     except: pass
 
 def flag_animation():
-    # Myanmar Flag ASCII Art
-    lines = [
-        f"{W}┌──────────────────────────────────────────────────┐",
-        f"│{Y}██████████████████████████████████████████████████{W}│",
-        f"│{Y}██████████████████████████████████████████████████{W}│",
-        f"│{Y}██████████████████████████████████████████████████{W}│",
-        f"│{G}████████████████████████{W}★{G}████████████████████████{W}│",
-        f"│{G}████████████████████████{W}★{G}████████████████████████{W}│",
-        f"│{G}████████████████████████{W}★{G}████████████████████████{W}│",
-        f"│{R}██████████████████████████████████████████████████{W}│",
-        f"│{R}██████████████████████████████████████████████████{W}│",
-        f"│{R}██████████████████████████████████████████████████{W}│",
-        f"{W}└──────────────────────────────────────────────────┘"
+    # Proportions roughly 5cm x 3cm
+    # Step 1: Draw the 3 color bands first
+    bands = [
+        f"{Y}██████████████████████████████████████████████████",
+        f"{Y}██████████████████████████████████████████████████",
+        f"{Y}██████████████████████████████████████████████████",
+        f"{G}██████████████████████████████████████████████████",
+        f"{G}██████████████████████████████████████████████████",
+        f"{G}██████████████████████████████████████████████████",
+        f"{R}██████████████████████████████████████████████████",
+        f"{R}██████████████████████████████████████████████████",
+        f"{R}██████████████████████████████████████████████████"
     ]
     
-    # Character by character animation (like subtitles)
-    for line in lines:
-        i = 0
-        while i < len(line):
-            # Handle ANSI escape codes so they don't break the animation
-            if line[i] == "\033":
-                end_idx = line.find("m", i)
-                if end_idx != -1:
-                    sys.stdout.write(line[i:end_idx+1])
-                    i = end_idx + 1
-                    continue
-            sys.stdout.write(line[i])
-            sys.stdout.flush()
-            time.sleep(0.005) # Very fast per character
-            i += 1
-        sys.stdout.write("\n")
-        time.sleep(0.05)
+    print(f"{W}┌──────────────────────────────────────────────────┐")
+    for band in bands:
+        print(f"│{band}{W}│")
+        time.sleep(0.1)
+    print(f"{W}└──────────────────────────────────────────────────┘")
+    
+    # Step 2: Draw the star on top of the bands using ANSI escape codes to move cursor
+    # The star should be centered. Total width 50, height 9.
+    # Center is approx line 5 (index 4 in bands), col 25.
+    star_lines = [
+        (2, 25, "★"),
+        (3, 23, "★★★"),
+        (4, 21, "★★★★★"),
+        (5, 19, "★★★★★★★"),
+        (6, 21, "★★★★★"),
+        (7, 23, "★★★"),
+        (8, 25, "★")
+    ]
+    
+    # We need to move the cursor up to draw the star.
+    # The box ends 1 line above the current position.
+    # Total lines printed: 1 (top) + 9 (bands) + 1 (bottom) = 11 lines.
+    # To reach line 2 of the flag (top band), we move up 10 lines.
+    
+    for row, col, star in star_lines:
+        # Move cursor up to the specific row
+        # Row 1 is top border, Row 2 is first band line
+        move_up = 11 - row
+        sys.stdout.write(f"\033[{move_up}A")
+        # Move cursor forward to the specific column
+        # Col 1 is border, Col 2 is first pixel
+        sys.stdout.write(f"\033[{col}C")
+        # Print the star in White
+        sys.stdout.write(f"{W}{star}")
+        # Move cursor back down to the original position
+        sys.stdout.write(f"\033[{move_up}B")
+        sys.stdout.write("\r") # Return to start of line
+        sys.stdout.flush()
+        time.sleep(0.4) # Slower star drawing
+
+    # Move cursor to the end of the flag
+    sys.stdout.write("\n")
+    sys.stdout.flush()
 
 def hacker_intro():
     clear_screen()
@@ -118,21 +142,18 @@ def loading_bar(iteration, total, prefix='Sending', length=30):
 
 def banner():
     clear_screen()
-    # Draw flag without animation for the menu
-    lines = [
-        f"{W}┌──────────────────────────────────────────────────┐",
-        f"│{Y}██████████████████████████████████████████████████{W}│",
-        f"│{Y}██████████████████████████████████████████████████{W}│",
-        f"│{Y}██████████████████████████████████████████████████{W}│",
-        f"│{G}████████████████████████{W}★{G}████████████████████████{W}│",
-        f"│{G}████████████████████████{W}★{G}████████████████████████{W}│",
-        f"│{G}████████████████████████{W}★{G}████████████████████████{W}│",
-        f"│{R}██████████████████████████████████████████████████{W}│",
-        f"│{R}██████████████████████████████████████████████████{W}│",
-        f"│{R}██████████████████████████████████████████████████{W}│",
-        f"{W}└──────────────────────────────────────────────────┘"
-    ]
-    for line in lines: print(line)
+    # Draw static flag for menu
+    print(f"{W}┌──────────────────────────────────────────────────┐")
+    print(f"│{Y}██████████████████████████████████████████████████{W}│")
+    print(f"│{Y}██████████████████████████████████████████████████{W}│")
+    print(f"│{Y}██████████████████████████████████████████████████{W}│")
+    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
+    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
+    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
+    print(f"│{R}██████████████████████████████████████████████████{W}│")
+    print(f"│{R}██████████████████████████████████████████████████{W}│")
+    print(f"│{R}██████████████████████████████████████████████████{W}│")
+    print(f"{W}└──────────────────────────────────────────────────┘")
     print(f"{G}")
     print(r"  ____  _   _ ___ _   _ _____   _  _____  _  _____  ")
     print(r" / ___|| | | |_ _| \ | | ____| | |/ / _ \| |/ / _ \ ")
@@ -208,32 +229,6 @@ def auth(d_id, model):
         print(f"{R}[!] Invalid Key!{X}")
         time.sleep(2)
 
-# --- HISTORY MANAGEMENT ---
-def load_history():
-    if os.path.exists(HISTORY_FILE):
-        try:
-            with open(HISTORY_FILE, "r") as f:
-                return json.load(f)
-        except: return []
-    return []
-
-def save_history(phone):
-    history = load_history()
-    if phone in history:
-        history.remove(phone)
-    history.insert(0, phone)
-    history = history[:10] # Keep last 10
-    try:
-        with open(HISTORY_FILE, "w") as f:
-            json.dump(history, f)
-    except: pass
-
-def clear_history():
-    if os.path.exists(HISTORY_FILE):
-        os.remove(HISTORY_FILE)
-    print(f"\n{G}[+] History Cleared!{X}")
-    time.sleep(1)
-
 # --- SMS API FUNCTIONS ---
 def call_mytel(phone):
     try:
@@ -254,7 +249,6 @@ def call_ooredoo(phone):
 
 def start_bombing(p, c, op):
     print(f"\n{W}[*] Starting SMS Bomber for {C}{p}{W}...")
-    save_history(p)
     for i in range(c):
         try:
             if op == '1': call_mytel(p)
@@ -275,7 +269,6 @@ def main_menu(d_id, model):
         banner()
         print(f"  {W}[1] SMS TOOL (START BOMBING)")
         print(f"  {W}[2] MY PROFILE")
-        print(f"  {W}[3] CLEAR HISTORY")
         print(f"  {R}[0] EXIT")
         choice = input(f"\n{W}[?]{G} Select: {W}").strip()
         if choice == '1':
@@ -288,38 +281,14 @@ def main_menu(d_id, model):
                 print(f"  {R}[b] BACK")
                 op = input(f"\n{W}[?]{G} Select Operator: {W}").strip()
                 if op.lower() == 'b': break
-                
-                # Show History
-                history = load_history()
-                target_phone = ""
-                if history:
-                    print(f"\n{Y}--- Recent History ---{X}")
-                    for idx, h_phone in enumerate(history, 1):
-                        print(f"  {W}[{idx}] {C}{h_phone}{X}")
-                    print(f"{Y}----------------------{X}")
-                    
-                p_input = input(f"\n{W}[?]{G} Target Phone (or index): {C}").strip()
-                
-                if p_input.isdigit() and 1 <= int(p_input) <= len(history):
-                    target_phone = history[int(p_input)-1]
-                    print(f"{G}[+] Using: {target_phone}{X}")
-                else:
-                    target_phone = p_input
-
-                if not target_phone:
-                    print(f"{R}[!] Invalid Phone Number!{X}")
-                    time.sleep(1)
-                    continue
-
+                p = input(f"\n{W}[?]{G} Target Phone: {C}")
                 try:
                     c = int(input(f"{W}[?]{G} Count: {W}"))
-                    start_bombing(target_phone, c, op)
+                    start_bombing(p, c, op)
                 except: pass
         elif choice == '2':
             banner()
             input(f"\n{W}Press Enter to return...{X}")
-        elif choice == '3':
-            clear_history()
         elif choice == '0': sys.exit()
 
 if __name__ == '__main__':
@@ -327,4 +296,3 @@ if __name__ == '__main__':
     d_id, model = banner()
     if auth(d_id, model):
         main_menu(d_id, model)
-
