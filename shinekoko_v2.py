@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 # --- CONFIGURATION ---
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
-CHANNEL_LINK = "https://t.me/shinekokoshinekoko (or) @shinekoko200 လာတောင်းပေးပါ " 
+CHANNEL_LINK = "https://t.me/A_ToolsX" 
 
 # Colors
 G = "\033[1;32m"
@@ -25,7 +25,7 @@ def play_sound():
     except: pass
 
 def flag_animation():
-    # Proportions roughly 5cm x 3cm
+    # Proportions 5cm x 3cm (approx 50x9 characters)
     # Step 1: Draw the 3 color bands first
     bands = [
         f"{Y}██████████████████████████████████████████████████",
@@ -45,9 +45,7 @@ def flag_animation():
         time.sleep(0.1)
     print(f"{W}└──────────────────────────────────────────────────┘")
     
-    # Step 2: Draw the star on top of the bands using ANSI escape codes to move cursor
-    # The star should be centered. Total width 50, height 9.
-    # Center is approx line 5 (index 4 in bands), col 25.
+    # Step 2: Draw the star on top (one point at a time for effect)
     star_lines = [
         (2, 25, "★"),
         (3, 23, "★★★"),
@@ -58,30 +56,31 @@ def flag_animation():
         (8, 25, "★")
     ]
     
-    # We need to move the cursor up to draw the star.
-    # The box ends 1 line above the current position.
-    # Total lines printed: 1 (top) + 9 (bands) + 1 (bottom) = 11 lines.
-    # To reach line 2 of the flag (top band), we move up 10 lines.
-    
     for row, col, star in star_lines:
-        # Move cursor up to the specific row
-        # Row 1 is top border, Row 2 is first band line
         move_up = 11 - row
         sys.stdout.write(f"\033[{move_up}A")
-        # Move cursor forward to the specific column
-        # Col 1 is border, Col 2 is first pixel
         sys.stdout.write(f"\033[{col}C")
-        # Print the star in White
         sys.stdout.write(f"{W}{star}")
-        # Move cursor back down to the original position
         sys.stdout.write(f"\033[{move_up}B")
-        sys.stdout.write("\r") # Return to start of line
+        sys.stdout.write("\r")
         sys.stdout.flush()
-        time.sleep(0.4) # Slower star drawing
-
-    # Move cursor to the end of the flag
+        time.sleep(0.4)
     sys.stdout.write("\n")
     sys.stdout.flush()
+
+def static_flag():
+    # Static version for menu
+    print(f"{W}┌──────────────────────────────────────────────────┐")
+    print(f"│{Y}██████████████████████████████████████████████████{W}│")
+    print(f"│{Y}██████████████████████████████████████████████████{W}│")
+    print(f"│{Y}██████████████████████████████████████████████████{W}│")
+    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
+    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
+    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
+    print(f"│{R}██████████████████████████████████████████████████{W}│")
+    print(f"│{R}██████████████████████████████████████████████████{W}│")
+    print(f"│{R}██████████████████████████████████████████████████{W}│")
+    print(f"{W}└──────────────────────────────────────────────────┘")
 
 def hacker_intro():
     clear_screen()
@@ -142,18 +141,7 @@ def loading_bar(iteration, total, prefix='Sending', length=30):
 
 def banner():
     clear_screen()
-    # Draw static flag for menu
-    print(f"{W}┌──────────────────────────────────────────────────┐")
-    print(f"│{Y}██████████████████████████████████████████████████{W}│")
-    print(f"│{Y}██████████████████████████████████████████████████{W}│")
-    print(f"│{Y}██████████████████████████████████████████████████{W}│")
-    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
-    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
-    print(f"│{G}████████████████████████{W}★{G}████████████████████████{W}│")
-    print(f"│{R}██████████████████████████████████████████████████{W}│")
-    print(f"│{R}██████████████████████████████████████████████████{W}│")
-    print(f"│{R}██████████████████████████████████████████████████{W}│")
-    print(f"{W}└──────────────────────────────────────────────────┘")
+    static_flag()
     print(f"{G}")
     print(r"  ____  _   _ ___ _   _ _____   _  _____  _  _____  ")
     print(r" / ___|| | | |_ _| \ | | ____| | |/ / _ \| |/ / _ \ ")
