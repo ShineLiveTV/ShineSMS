@@ -25,28 +25,29 @@ def play_sound():
     except: pass
 
 def flag_animation():
-    # Proportions 5cm x 3cm (approx 50x9 characters)
-    # Step 1: Draw the 3 color bands first
+    # Step 1: Draw the 3 color bands (Yellow, Green, Red)
+    # Proportions: 50 chars wide, 9 chars high
     bands = [
-        f"{Y}██████████████████████████████████████████████████",
-        f"{Y}██████████████████████████████████████████████████",
-        f"{Y}██████████████████████████████████████████████████",
-        f"{G}██████████████████████████████████████████████████",
-        f"{G}██████████████████████████████████████████████████",
-        f"{G}██████████████████████████████████████████████████",
-        f"{R}██████████████████████████████████████████████████",
-        f"{R}██████████████████████████████████████████████████",
-        f"{R}██████████████████████████████████████████████████"
+        (Y, "██████████████████████████████████████████████████"),
+        (Y, "██████████████████████████████████████████████████"),
+        (Y, "██████████████████████████████████████████████████"),
+        (G, "██████████████████████████████████████████████████"),
+        (G, "██████████████████████████████████████████████████"),
+        (G, "██████████████████████████████████████████████████"),
+        (R, "██████████████████████████████████████████████████"),
+        (R, "██████████████████████████████████████████████████"),
+        (R, "██████████████████████████████████████████████████")
     ]
     
     print(f"{W}┌──────────────────────────────────────────────────┐")
-    for band in bands:
-        print(f"│{band}{W}│")
+    for color, band in bands:
+        print(f"│{color}{band}{W}│")
         time.sleep(0.1)
     print(f"{W}└──────────────────────────────────────────────────┘")
     
-    # Step 2: Draw the star on top (one point at a time for effect)
-    star_lines = [
+    # Step 2: Draw the large star in the middle step by step
+    # Center is roughly row 5, col 25
+    star_steps = [
         (2, 25, "★"),
         (3, 23, "★★★"),
         (4, 21, "★★★★★"),
@@ -56,20 +57,20 @@ def flag_animation():
         (8, 25, "★")
     ]
     
-    for row, col, star in star_lines:
+    for row, col, star in star_steps:
         move_up = 11 - row
-        sys.stdout.write(f"\033[{move_up}A")
-        sys.stdout.write(f"\033[{col}C")
+        sys.stdout.write(f"\033[{move_up}A") # Move cursor up
+        sys.stdout.write(f"\033[{col}C") # Move cursor right
         sys.stdout.write(f"{W}{star}")
-        sys.stdout.write(f"\033[{move_up}B")
+        sys.stdout.write(f"\033[{move_up}B") # Move cursor back down
         sys.stdout.write("\r")
         sys.stdout.flush()
-        time.sleep(0.4)
+        time.sleep(0.3)
     sys.stdout.write("\n")
     sys.stdout.flush()
 
 def static_flag():
-    # Static version for menu
+    # High-quality static flag for menu
     print(f"{W}┌──────────────────────────────────────────────────┐")
     print(f"│{Y}██████████████████████████████████████████████████{W}│")
     print(f"│{Y}██████████████████████████████████████████████████{W}│")
@@ -276,10 +277,24 @@ def main_menu(d_id, model):
                 except: pass
         elif choice == '2':
             banner()
+            print(f"\n{C}╔══════════════════════════════════════════════════╗")
+            print(f"  {G}•{W} Device ID   : {C}{d_id}")
+            print(f"  {G}•{W} Phone Model : {W}{model}")
+            saved = get_saved_key()
+            if saved:
+                key = saved.get("key", "N/A")
+                act_at = datetime.fromtimestamp(saved.get("activated_at", 0)).strftime('%Y-%m-%d %H:%M:%S')
+                print(f"  {G}•{W} VIP Key     : {Y}{key}")
+                print(f"  {G}•{W} Activated   : {W}{act_at}")
+                print(f"  {G}•{W} VIP Status  : {G}Active")
+            else:
+                print(f"  {G}•{W} VIP Status  : {R}Inactive")
+            print(f"{C}╚══════════════════════════════════════════════════╝{X}")
             input(f"\n{W}Press Enter to return...{X}")
         elif choice == '0': sys.exit()
 
 if __name__ == '__main__':
+    from datetime import datetime
     hacker_intro()
     d_id, model = banner()
     if auth(d_id, model):
