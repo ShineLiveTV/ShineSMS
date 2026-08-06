@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 # --- CONFIGURATION ---
 BOT_TOKEN = "8700243285:AAEvVldxc_YeDqZ6FItFnWhcg-18kexzFnw"
 KEY_FILE = os.path.join(os.path.expanduser("~"), ".shine_vip_key.json")
-CHANNEL_LINK = "https://t.me/shinekokoshinekoko" 
+CHANNEL_LINK = "https://t.me/shinekokoshinekoko မှာ Key လာတောင်းပေးပါ Admin @shinekoko200 " 
 
 # Colors
 G = "\033[1;32m"
